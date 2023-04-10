@@ -1,9 +1,18 @@
 from django.contrib.auth import login
 from django.shortcuts import redirect, render
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView
-from office.models import User, ProductList
+from office.models import (
+    User,
+    ProductList,
+    Customer,
+)
 from django.urls import reverse, reverse_lazy
-from office.forms import ManagerSignUpForm, AddDeliveryPersonForm, AddProductForm
+from office.forms import (
+    ManagerSignUpForm,
+    AddDeliveryPersonForm,
+    AddProductForm,
+    AddCustomerForm,
+)
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 class ManagerSignUpView(CreateView):
@@ -27,11 +36,11 @@ class HomeView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return 0
 
-class AddDeliveryPerson(LoginRequiredMixin, CreateView):
+class AddDeliveryPersonView(LoginRequiredMixin, CreateView):
     model = User
     form_class = AddDeliveryPersonForm
     template_name = 'manager/item_add.html'
-    success_url = reverse_lazy('manager:delivery-person-add')
+    success_url = reverse_lazy('manager:delivery-persons')
 
     def get_context_data(self, **kwargs):
         kwargs['item'] = 'Delivery Person'
@@ -39,33 +48,6 @@ class AddDeliveryPerson(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         return super().form_valid(form)
-
-class AddProductView(LoginRequiredMixin, CreateView):
-    model = ProductList
-    template_name = 'manager/item_add.html'
-    form_class = AddProductForm
-    success_url = reverse_lazy('manager:product-add')
-
-    def get_context_data(self, **kwargs):
-        kwargs['item'] = 'Product'
-        return super().get_context_data(**kwargs)
-    
-    def form_valid(self, form):
-        return super().form_valid(form)
-
-class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
-    model = ProductList
-    template_name = 'manager/item_confirm_delete.html'
-    success_url = reverse_lazy('products')
-
-    def get_context_data(self, **kwargs):
-        kwargs['type'] = 'products'
-        return super().get_context_data(**kwargs)
-    
-    def test_func(self):
-        if self.request.user.user_type == 0:
-            return True
-        return False
 
 class ListDeliveryPersonView(LoginRequiredMixin, ListView):
     model = User
@@ -92,5 +74,72 @@ class DeleteDeliveryPersonView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
     def test_func(self):
         dp = self.get_object()
         if self.request.user.user_type == 0 and dp.user_type != 0:
+            return True
+        return False
+
+class AddProductView(LoginRequiredMixin, CreateView):
+    model = ProductList
+    template_name = 'manager/item_add.html'
+    form_class = AddProductForm
+    success_url = reverse_lazy('products')
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Product'
+        return super().get_context_data(**kwargs)
+    
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = ProductList
+    template_name = 'manager/item_confirm_delete.html'
+    success_url = reverse_lazy('products')
+
+    def get_context_data(self, **kwargs):
+        kwargs['type'] = 'products'
+        return super().get_context_data(**kwargs)
+    
+    def test_func(self):
+        if self.request.user.user_type == 0:
+            return True
+        return False
+
+class AddCustomerView(LoginRequiredMixin, CreateView):
+    model = Customer
+    template_name = 'manager/item_add.html'
+    form_class = AddCustomerForm
+    success_url = reverse_lazy('manager:customers')
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Customer'
+        return super().get_context_data(**kwargs)
+    
+    def form_valid(self, form):
+        return super().form_valid(form)
+
+class ListCustomerView(LoginRequiredMixin, ListView):
+    model = Customer
+    ordering = ('id', )
+    context_object_name = 'objects'
+    template_name = 'items.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Customer'
+        kwargs['type'] = 'manager:customers'
+        kwargs['add'] = 'manager:customer-add'
+        kwargs['delete'] = 'manager:customer-delete'
+        return super().get_context_data(**kwargs)
+
+class DeleteCustomerView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Customer
+    template_name = 'manager/item_confirm_delete.html'
+    success_url = reverse_lazy('manager:customers')
+
+    def get_context_data(self, **kwargs):
+        kwargs['type'] = 'manager:customers'
+        return super().get_context_data(**kwargs)
+    
+    def test_func(self):
+        if self.request.user.user_type == 0:
             return True
         return False

@@ -9,6 +9,8 @@
                 {{obj.id}} {{obj.name}} {{obj.date_published}}
             {% elif type == 'manager:delivery-persons' %}
                 {{obj.id}} {{obj.username}} {{obj.name}}
+            {% elif type == 'manager:customers' %}
+                {{obj.id}} {{obj.name}} {{obj.address}}
             {% endif %}
             {% if user.user_type == 0 %}
                 <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url delete obj.id %}">Delete</a>
