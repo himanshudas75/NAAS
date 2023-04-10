@@ -12,5 +12,12 @@ def home(request):
 class ListProductView(ListView):
     model = ProductList
     ordering = ('id', )
-    context_object_name = 'products'
-    template_name = 'products.html'
+    context_object_name = 'objects'
+    template_name = 'items.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Product'
+        kwargs['type'] = 'products'
+        kwargs['add'] = 'manager:product-add'
+        kwargs['delete'] = 'manager:product-delete'
+        return super().get_context_data(**kwargs)
