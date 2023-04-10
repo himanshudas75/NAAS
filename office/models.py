@@ -25,12 +25,20 @@ class Customer(models.Model):
 class ProductList(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True, null=True)
     price = models.IntegerField(default=0)
     date_published = models.DateField()
 
 class SubscriptionList(models.Model):
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
     product_id = models.ForeignKey(ProductList, on_delete=models.CASCADE)
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['customer_id', 'product_id'], name='unique_customer_product_subscription'
+            )
+        ]
 
 class Deliveries(models.Model):
     deliveryperson = models.ForeignKey(User, on_delete=models.CASCADE)

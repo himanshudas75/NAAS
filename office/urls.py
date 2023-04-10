@@ -15,6 +15,13 @@ urlpatterns = [
         path('customer_add/', manager.AddCustomerView.as_view(), name='customer-add'),
         path('customers/', manager.ListCustomerView.as_view(), name='customers'),
         path('customer_delete/<int:pk>/', manager.DeleteCustomerView.as_view(), name='customer-delete'),
+        
+        path('subscriptions/<int:pk>/', manager.ListSubscriptionView.as_view(), name='subscriptions'),
+        path('subscriptions/<int:id1>/delete/<int:pk>/', manager.DeleteSubscriptionView.as_view(), name='subscription-delete'),
+        # path('subscriptions/<int:pk>/', include(([
+        #     path('', manager.ListSubscriptionView.as_view(), name='subscriptions'),
+        # ], 'manager'), namespace='subscription')),
+        
         path('profile/', manager.AddProductView.as_view(), name='profile'),
         path('logout', manager.AddProductView.as_view(), name='logout'),
     ], 'office'), namespace='manager')),

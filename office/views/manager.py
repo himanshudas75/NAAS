@@ -1,5 +1,5 @@
 from django.contrib.auth import login
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.views.generic import CreateView, ListView, UpdateView, DeleteView
 from office.models import (
     User,
@@ -151,29 +151,47 @@ class DeleteCustomerView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return True
         return False
 
-class AddSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+# class AddSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+#     model = SubscriptionList
+#     form_class = AddSubscriptionForm
+#     template_name = 'manager/item_add.html'
+#     success_url = reverse_lazy('manager:customers')
+
+#     def get_context_data(self, **kwargs):
+#         kwargs['item'] = 'Subscription'
+#         return super().get_context_data(**kwargs)
+    
+#     def test_func(self):
+#         if self.request.user.user_type == 0:
+#             return True
+#         return False
+
+class ListSubscriptionView(LoginRequiredMixin, CreateView, ListView):
     model = SubscriptionList
+    context_object_name = 'objects'
     form_class = AddSubscriptionForm
-    template_name = 'manager/item_add.html'
-    success_url = reverse_lazy('manager:customers')
+    template_name = 'manager/subscriptions.html'
 
     def get_context_data(self, **kwargs):
-        kwargs['item'] = 'Subscription'
+        kwargs['item'] = 'Customer'
+        kwargs['type'] = 'manager:customers'
+        kwargs['add'] = 'manager:subscription-add'
+        kwargs['delete'] = 'manager:subscription-delete'
         return super().get_context_data(**kwargs)
+
+    def get_queryset(self):
+        customer = get_object_or_404(Customer, id=self.kwargs['pk'])
+        return self.model.objects.filter(customer_id = customer)
+
+class DeleteSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = SubscriptionList
+    template_name = 'manager/subscription_confirm_delete.html'
+    context_object_name = 'object'
+
+    def get_success_url(self):         
+        return reverse_lazy('manager:subscriptions', kwargs = {'pk': self.object.customer_id.id})
     
     def test_func(self):
         if self.request.user.user_type == 0:
             return True
         return False
-
-class ListSubscriptionView(LoginRequiredMixin, ListView):
-    model = SubscriptionList
-    context_object_name = 'objects'
-    template_name = 'items.html'
-
-    def get_context_data(self, **kwargs):
-        kwargs['item'] = 'Customer'
-        kwargs['type'] = 'manager:customers'
-        kwargs['add'] = 'manager:customer-add'
-        kwargs['delete'] = 'manager:customer-delete'
-        return super().get_context_data(**kwargs)

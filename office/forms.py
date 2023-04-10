@@ -35,11 +35,12 @@ class AddDeliveryPersonForm(UserCreationForm):
 class AddProductForm(forms.ModelForm):
     class Meta:
         model = ProductList
-        fields = ("name", "price", "date_published")
+        fields = ("name", "code", "price", "date_published")
     
     def __init__(self, *args, **kwargs):
         super(AddProductForm, self).__init__(*args, **kwargs)
         self.fields['name'].widget.attrs['placeholder'] = 'The Times of India'
+        self.fields['code'].widget.attrs['placeholder'] = 'TOA'
         self.fields['price'].widget.attrs['placeholder'] = '300'
         self.fields['date_published'].widget.attrs['placeholder'] = 'MM/DD/YYYY'
 
