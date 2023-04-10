@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+    {% if user.user_type == 0 %}
+    <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:delivery-person-add'%}">Add New Delivery Person</a>
+    {% endif %}
+    {% for dp in delivery_persons %}
+        <div> {{dp.id}} {{dp.username}} {{dp.name}}
+        {% if user.user_type == 0 %}
+        <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:delivery-person-delete' dp.id %}">Delete</a>
+        {% endif %}
+        </div>
+    {% endfor %}
+{% endblock content %}

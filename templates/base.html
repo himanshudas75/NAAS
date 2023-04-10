@@ -34,9 +34,10 @@
                   </ul>
                   
                     {% if user.is_authenticated %}
+                    <a href="{% url 'products' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i>Products</a>
                       {% if user.user_type == 0 %}
-                    <a href="{% url 'manager:add-product' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i> Add Product</a>
-                    <a href="{% url 'manager:add-delivery-person' %} " class="btn text-white m-2"><i class="fas fa-user-edit"></i>Add Delivery Person</a>
+                    
+                    <a href="{% url 'manager:delivery-persons' %} " class="btn text-white m-2"><i class="fas fa-user-edit"></i>Delivery Persons</a>
                     <a href="{% url 'manager:profile' %} " class="btn text-white m-2"><i class="fas fa-user"></i> {{ user.username }}</a>
                     <a href="{% url 'manager:logout' %} " class="btn text-white m-2"><i class="fas fa-sign-out-alt"></i> Log Out</a>
                       {% endif %}

@@ -5,12 +5,12 @@
 {% block content %}
   <div class="row">
     <div class="col-md-8 col-sm-10 col-12">
-      <h2>Sign up as a {{ user_type }}</h2>
+      <h2>Enter details to Register</h2>
       <form method="post" novalidate>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
         {{ form|crispy }}
-        <button type="submit" class="btn btn-success">Sign up</button>
+        <button type="submit" class="btn btn-success">Register</button>
       </form>
     </div>
   </div>
