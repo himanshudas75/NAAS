@@ -5,6 +5,7 @@ from office.models import (
     User,
     ProductList,
     Customer,
+    SubscriptionList
 )
 from django.urls import reverse, reverse_lazy
 from office.forms import (
@@ -12,6 +13,7 @@ from office.forms import (
     AddDeliveryPersonForm,
     AddProductForm,
     AddCustomerForm,
+    AddSubscriptionForm,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -104,7 +106,7 @@ class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return True
         return False
 
-class AddCustomerView(LoginRequiredMixin, CreateView):
+class AddCustomerView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Customer
     template_name = 'manager/item_add.html'
     form_class = AddCustomerForm
@@ -116,6 +118,11 @@ class AddCustomerView(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         return super().form_valid(form)
+
+    def test_func(self):
+        if self.request.user.user_type == 0:
+            return True
+        return False
 
 class ListCustomerView(LoginRequiredMixin, ListView):
     model = Customer
@@ -143,3 +150,30 @@ class DeleteCustomerView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if self.request.user.user_type == 0:
             return True
         return False
+
+class AddSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = SubscriptionList
+    form_class = AddSubscriptionForm
+    template_name = 'manager/item_add.html'
+    success_url = reverse_lazy('manager:customers')
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Subscription'
+        return super().get_context_data(**kwargs)
+    
+    def test_func(self):
+        if self.request.user.user_type == 0:
+            return True
+        return False
+
+class ListSubscriptionView(LoginRequiredMixin, ListView):
+    model = SubscriptionList
+    context_object_name = 'objects'
+    template_name = 'items.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Customer'
+        kwargs['type'] = 'manager:customers'
+        kwargs['add'] = 'manager:customer-add'
+        kwargs['delete'] = 'manager:customer-delete'
+        return super().get_context_data(**kwargs)

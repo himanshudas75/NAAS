@@ -9,28 +9,35 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = ('username')
 
     id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=100, unique=True)
+    username = models.CharField(max_length=100, unique=True, null=True)
     name = models.CharField(max_length=100, null=True)
     password = models.CharField(max_length=100, null=True)
     user_type = models.IntegerField(choices=((0,0), (1,1)), default=0)
 
     objects = UserManager()
 
+class Customer(models.Model):
+    id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=100, unique=True, null=True)
+    name = models.CharField(max_length=100)
+    address = models.CharField(max_length=200)
+
+class ProductList(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
+    price = models.IntegerField(default=0)
+    date_published = models.DateField()
+
+class SubscriptionList(models.Model):
+    customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    product_id = models.ForeignKey(ProductList, on_delete=models.CASCADE)
+
 class Deliveries(models.Model):
     deliveryperson = models.ForeignKey(User, on_delete=models.CASCADE)
     deliveries = models.IntegerField()
-
-class Customer(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=200)
 
 class DeliveryList(models.Model):
     id = models.AutoField(primary_key=True)
     deliveryperson = models.ForeignKey(User, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
-class ProductList(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100)
-    date_published = models.DateField()
