@@ -5,17 +5,16 @@ from django.contrib.auth.models import UserManager
 
 # Create your models here.
 class User(AbstractBaseUser):
-    REQUIRED_FIELDS = ('id', 'name', 'email', 'password')
+    REQUIRED_FIELDS = ('id', 'name', 'password')
     USERNAME_FIELD = ('username')
 
     id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=100, null=True)
-    email = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=100, null=True)
     user_type = models.IntegerField(choices=((0,0), (1,1)), default=0)
 
-    object = UserManager()
+    objects = UserManager()
 
 class Deliveries(models.Model):
     deliveryperson = models.ForeignKey(User, on_delete=models.CASCADE)
