@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
-{% block content %}
+{% load crispy_forms_tags %}
 
+{% block content %}
+    <h2>Add Subscription</h2>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-success">Add</button>
+      </form>
     {% for obj in objects %}
         <div>
             {{ obj.customer_id.username }} {{ obj.product_id.code }}

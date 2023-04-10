@@ -151,27 +151,19 @@ class DeleteCustomerView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return True
         return False
 
-# class AddSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-#     model = SubscriptionList
-#     form_class = AddSubscriptionForm
-#     template_name = 'manager/item_add.html'
-#     success_url = reverse_lazy('manager:customers')
-
-#     def get_context_data(self, **kwargs):
-#         kwargs['item'] = 'Subscription'
-#         return super().get_context_data(**kwargs)
-    
-#     def test_func(self):
-#         if self.request.user.user_type == 0:
-#             return True
-#         return False
-
 class ListSubscriptionView(LoginRequiredMixin, CreateView, ListView):
     model = SubscriptionList
     context_object_name = 'objects'
     form_class = AddSubscriptionForm
     template_name = 'manager/subscriptions.html'
 
+    def get_success_url(self):         
+        return reverse_lazy('manager:subscriptions', kwargs = {'pk': self.object.customer_id.id})
+    
+    def form_valid(self, form):
+        form.instance.customer_id = Customer.objects.filter(id=self.kwargs['pk']).first()
+        return super().form_valid(form)
+    
     def get_context_data(self, **kwargs):
         kwargs['item'] = 'Customer'
         kwargs['type'] = 'manager:customers'
@@ -195,3 +187,4 @@ class DeleteSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, DeleteView
         if self.request.user.user_type == 0:
             return True
         return False
+

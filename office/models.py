@@ -16,11 +16,17 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
+    def __str__(self):
+        return self.username
+
 class Customer(models.Model):
     id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100, unique=True, null=True)
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.username
 
 class ProductList(models.Model):
     id = models.AutoField(primary_key=True)
@@ -29,10 +35,13 @@ class ProductList(models.Model):
     price = models.IntegerField(default=0)
     date_published = models.DateField()
 
+    def __str__(self):
+        return self.code
+
 class SubscriptionList(models.Model):
     customer_id = models.ForeignKey(Customer, on_delete=models.CASCADE)
     product_id = models.ForeignKey(ProductList, on_delete=models.CASCADE)
-    
+
     class Meta:
         constraints = [
             models.UniqueConstraint(

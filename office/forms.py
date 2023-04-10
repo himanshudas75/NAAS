@@ -58,4 +58,8 @@ class AddCustomerForm(forms.ModelForm):
 class AddSubscriptionForm(forms.ModelForm):
     class Meta:
         model = SubscriptionList
-        fields = ("customer_id", "product_id")
+        fields = ("product_id",)
+
+    def __init__(self, *args, **kwargs):
+        super(AddSubscriptionForm, self).__init__(*args, **kwargs)
+        self.fields["product_id"].empty_label = None
