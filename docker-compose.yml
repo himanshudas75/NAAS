@@ -1,0 +1,41 @@
+version: '3.9'
+services:
+  db:
+    image: mysql
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_ROOT_PASSWORD: "rootpassword"
+      MYSQL_DATABASE: "NAAS"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  naas:
+    container_name: naas-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: naas
+    volumes:
+     - shared-data:/opt/NAAS
+    depends_on:
+      db:
+        condition: service_healthy
+  
+  nginx:
+    container_name: nginx-container
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    volumes:
+      - shared-data:/opt/NAAS
+    ports:
+      - 8500:80
+
+
+volumes:
+  shared-data:

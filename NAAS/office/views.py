@@ -20,6 +20,12 @@ from office.forms import (
     AddCustomerRequestForm,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from io import BytesIO
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from datetime import datetime, timedelta
+import random
 
 def home(request):
     if request.user.is_authenticated:
@@ -46,11 +52,12 @@ class ManagerSignUpView(CreateView):
 class AddDeliveryPersonView(LoginRequiredMixin, CreateView):
     model = User
     form_class = AddDeliveryPersonForm
-    template_name = 'manager/item_add.html'
+    template_name = 'item_add.html'
     success_url = reverse_lazy('manager:delivery-persons')
 
     def get_context_data(self, **kwargs):
         kwargs['item'] = 'Delivery Person'
+        kwargs['title'] = 'Add Delivery Person'
         return super().get_context_data(**kwargs)
     
     def form_valid(self, form):
@@ -63,11 +70,11 @@ class ListDeliveryPersonView(LoginRequiredMixin, ListView):
     template_name = 'items.html'
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Delivery Persons'
         kwargs['item'] = 'Delivery Person'
         kwargs['type'] = 'manager:delivery-persons'
         kwargs['add'] = 'manager:delivery-person-add'
         kwargs['delete'] = 'manager:delivery-person-delete'
-        # kwargs['temp'] = 0
         return super().get_context_data(**kwargs)
 
     def get_queryset(self):
@@ -75,10 +82,11 @@ class ListDeliveryPersonView(LoginRequiredMixin, ListView):
 
 class DeleteDeliveryPersonView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = User
-    template_name = 'manager/item_confirm_delete.html'
+    template_name = 'item_confirm_delete.html'
     success_url = reverse_lazy('manager:delivery-persons')
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Confirm Delete'
         kwargs['type'] = 'manager:delivery-persons'
         return super().get_context_data(**kwargs)
     
@@ -90,11 +98,12 @@ class DeleteDeliveryPersonView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
 
 class AddProductView(LoginRequiredMixin, CreateView):
     model = ProductList
-    template_name = 'manager/item_add.html'
+    template_name = 'item_add.html'
     form_class = AddProductForm
     success_url = reverse_lazy('products')
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Add Product'
         kwargs['item'] = 'Product'
         return super().get_context_data(**kwargs)
     
@@ -108,6 +117,7 @@ class ListProductView(ListView):
     template_name = 'items.html'
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Products'
         kwargs['item'] = 'Product'
         kwargs['type'] = 'products'
         kwargs['add'] = 'manager:product-add'
@@ -116,10 +126,11 @@ class ListProductView(ListView):
     
 class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = ProductList
-    template_name = 'manager/item_confirm_delete.html'
+    template_name = 'item_confirm_delete.html'
     success_url = reverse_lazy('products')
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Confirm Delete'
         kwargs['type'] = 'products'
         return super().get_context_data(**kwargs)
     
@@ -130,11 +141,12 @@ class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class AddCustomerView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Customer
-    template_name = 'manager/item_add.html'
+    template_name = 'item_add.html'
     form_class = AddCustomerForm
     success_url = reverse_lazy('manager:customers')
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Add Customer'
         kwargs['item'] = 'Customer'
         return super().get_context_data(**kwargs)
     
@@ -153,6 +165,7 @@ class ListCustomerView(LoginRequiredMixin, ListView):
     template_name = 'items.html'
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Customers'
         kwargs['item'] = 'Customer'
         kwargs['type'] = 'manager:customers'
         kwargs['add'] = 'manager:customer-add'
@@ -161,10 +174,11 @@ class ListCustomerView(LoginRequiredMixin, ListView):
 
 class DeleteCustomerView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Customer
-    template_name = 'manager/item_confirm_delete.html'
+    template_name = 'item_confirm_delete.html'
     success_url = reverse_lazy('manager:customers')
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Confirm Delete'
         kwargs['type'] = 'manager:customers'
         return super().get_context_data(**kwargs)
     
@@ -177,7 +191,7 @@ class ListSubscriptionView(LoginRequiredMixin, CreateView, ListView):
     model = SubscriptionList
     context_object_name = 'objects'
     form_class = AddSubscriptionForm
-    template_name = 'manager/subscriptions.html'
+    template_name = 'subscriptions.html'
 
     def get_success_url(self):         
         return reverse_lazy('manager:subscriptions', kwargs = {'pk': self.object.customer.id})
@@ -187,6 +201,7 @@ class ListSubscriptionView(LoginRequiredMixin, CreateView, ListView):
         return super().form_valid(form)
     
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Subscriptions'
         kwargs['item'] = 'Customer'
         kwargs['type'] = 'manager:customers'
         kwargs['add'] = 'manager:subscription-add'
@@ -199,11 +214,15 @@ class ListSubscriptionView(LoginRequiredMixin, CreateView, ListView):
 
 class DeleteSubscriptionView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = SubscriptionList
-    template_name = 'manager/subscription_confirm_delete.html'
+    template_name = 'subscription_confirm_delete.html'
     context_object_name = 'object'
 
     def get_success_url(self):         
         return reverse_lazy('manager:subscriptions', kwargs = {'pk': self.object.customer.id})
+    
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Confirm Delete'
+        return super().get_context_data(**kwargs)
     
     def test_func(self):
         if self.request.user.user_type == 0:
@@ -220,6 +239,10 @@ class DeliveryListView(LoginRequiredMixin, ListView):
             return reverse_lazy('manager:delivery-list')
         return reverse_lazy('delivery-list')
 
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Delivery List'
+        return super().get_context_data(**kwargs)
+    
     def get_queryset(self):
         if self.request.user.user_type == 0:
             return self.model.objects.all()
@@ -325,20 +348,29 @@ def calculate_salary(request):
         dp.save()
     return redirect('manager:delivery-persons')
 
-# GENERATE PDF HERE
 def generate_bill(request, id):
     bills = Bill.objects.filter(customer=id)
     customer = Customer.objects.filter(id=id).first()
-    if customer.due_days <= 30:
-        print("BILLS: ",end="")
-    else:
-        print("REMINDER: ", end="")
-    amount = 0
-    if bills:
-        for bill in bills:
-            amount += bill.product.price * bill.quantity
-    print(amount, customer.amount_payable)
-    return redirect('manager:customers')
+
+    context_dic = {
+        'type': 'Bill' if customer.due_days < 30 else 'Reminder',
+        'bill_number': random.randint(0, 5000),
+        'current_date': datetime.now() + timedelta(hours=5.5),
+        'object': bills,
+        'amount_payable': customer.amount_payable,
+    }
+
+    template = get_template('bill_reminder.html')
+    html = template.render(context_dic)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+    if pdf:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        filename = f"Bill_{customer.username}"
+        content = f"attachment; filename={filename}.pdf"
+        response['Content-Disposition'] = content
+        return response
+    return None
 
 def pause(request, id, pause):
     customer = Customer.objects.filter(id=id).first()
@@ -378,6 +410,10 @@ class ListCustomerRequestsView(LoginRequiredMixin, ListView):
             return reverse_lazy('manager:customer-requests')
         return reverse_lazy('customer-requests')
     
+    def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Customer Requests'
+        return super().get_context_data(**kwargs)
+    
     def get_queryset(self):
         if self.request.user.user_type == 0:
             return self.model.objects.all()
@@ -390,6 +426,7 @@ class AddCustomerRequestView(LoginRequiredMixin, UserPassesTestMixin, CreateView
     success_url = reverse_lazy('customer-requests')
 
     def get_context_data(self, **kwargs):
+        kwargs['title'] = 'Add Customer Request'
         kwargs['item'] = 'Request'
         return super().get_context_data(**kwargs)
     
