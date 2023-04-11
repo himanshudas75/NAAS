@@ -209,13 +209,18 @@ class DeliveryListView(LoginRequiredMixin, ListView):
             return self.model.objects.all()
         return self.model.objects.filter(deliveryperson = self.request.user)
 
-
+# GENERATE DELIVERY LIST BASED ON FILTERS
+# 1. customer should be in subscription list
+# 2. pause = 0 for the customer
 def generate_delivery_list(request):
     if DeliveryList.objects.all():
         return redirect('manager:delivery-list')
     dp_list = User.objects.filter(user_type=1)
     dp_len = len(dp_list)
-    customer_list = Customer.objects.all()
+    ids = list(SubscriptionList.objects.all().values_list('customer', flat=True).distinct())
+    # print("LIST ->", ids)
+    customer_list = Customer.objects.filter(id__in=ids, pause=0)
+    # print("LIST2 ->", customer_list)
     customer_len = len(customer_list)
 
     if customer_len == 0 or dp_len == 0:
@@ -249,7 +254,6 @@ def delete_delivery_list(request):
 # 2. Add the price to deliveries in User table
 # 3. Add the Bill to customer
 # 4. Update customer due_date by 1
-
 def complete_delivery(request, id):
     # Updating deliverylist
     delivery = DeliveryList.objects.filter(id=id).first()
@@ -306,7 +310,11 @@ def calculate_salary(request):
 # GENERATE PDF HERE
 def generate_bill(request, id):
     bills = Bill.objects.filter(customer=id)
-    print("AMOUNT PAYABLE: ", end="")
+    customer = Customer.objects.filter(id=id)
+    if customer.due_days <= 30:
+        print("BILLS: ",end="")
+    else:
+        print("REMINDER: ", end="")
     amount = 0
     if bills:
         for bill in bills:
@@ -314,3 +322,11 @@ def generate_bill(request, id):
     print(amount)
     return redirect('manager:customers')
 
+def pause(request, id, pause):
+    customer = Customer.objects.filter(id=id).first()
+    if pause:
+        customer.pause = 1
+    else:
+        customer.pause = 0
+    customer.save()
+    return redirect('manager:customers')

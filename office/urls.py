@@ -31,6 +31,7 @@ urlpatterns = [
 
         path('calculate_salary/', manager.calculate_salary, name='calculate-salary'),
         path('generate_bill/<int:id>/', manager.generate_bill, name='generate-bill'),
+        path('pause/<int:id>/<int:pause>/', manager.pause, name='pause'),
 
         path('profile/', manager.AddProductView.as_view(), name='profile'),
     ], 'office'), namespace='manager')),

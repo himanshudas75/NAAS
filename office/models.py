@@ -76,3 +76,5 @@ class Bill(models.Model):
                 fields=['customer', 'product'], name='unique_customer_product_bill'
             )
         ]
+
+# class CustomerRequest(models.Model):

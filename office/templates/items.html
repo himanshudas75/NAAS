@@ -13,7 +13,12 @@
             {% elif type == 'manager:customers' %}
                 {{obj.id}} {{obj.name}} {{obj.username}} {{obj.address}}
                 <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:subscriptions' obj.id %}">View Subscriptions</a>
-                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:generate-bill' obj.id %}">Generate Bill</a>
+                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:generate-bill' obj.id %}">Generate Bill/Reminder</a>
+                {% if obj.pause == 0 %}
+                    <a class="btn btn-outline-secondary" href="{% url 'manager:pause' obj.id 1 %}">Pause</a>
+                {% else %}
+                    <a class="btn btn-outline-secondary" href="{% url 'manager:pause' obj.id 0 %}">Unpause</a>
+                {% endif %}
             {% endif %}
             {% if user.user_type == 0 %}
                 <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url delete obj.id %}">Delete</a>
