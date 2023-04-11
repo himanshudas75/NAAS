@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% for obj in object %}
+        <div>
+            <h4>Payment for {{ obj }}</h4>
+            <h4>Amount Payable: Rs {{ obj.amount_payable }}/-</h4>
+
+            <form action="payment">
+                <label for="card">Enter card details:</label><br>
+                <input type="text" id="card" name="card-details"><br>
+                <a class="btn btn-outline-secondary" href="{% url 'payment' obj.id %}">Pay</a>
+            </form>
+            
+        </div>
+    {% endfor %}
+
+{% endblock content %}

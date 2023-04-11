@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if user.user_type == 1 %}
+        <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'customer-request-add' %}">Add New Request</a>
+    {% endif %}
+    {% for obj in objects %}
+        <div>
+            {% if user.user_type == 0 %}
+                {{obj.deliveryperson}}
+            {% endif %}
+
+            {{obj.customer}} {{obj.request}}
+
+            {% if user.user_type == 0 %}
+                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:customer-request-complete' obj.id %}">Mark as done</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endblock content %}

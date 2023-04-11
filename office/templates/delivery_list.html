@@ -13,6 +13,9 @@
             {% elif user.user_type == 1 %}
                 <a class="btn btn-outline-secondary" href="{% url 'delivery-complete' obj.id %}">Mark as done</a>
             {% endif %}
+            {% if user.user_type == 1 %}
+                <a class="btn btn-outline-secondary" href="{% url 'payment-gateway' obj.customer.id %}">Payment</a>
+            {% endif %}
         </div>
     {% endfor %}
 

@@ -41,12 +41,14 @@
                       <a href="{% url 'products' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i>Products</a>
                     <a href="{% url 'manager:delivery-persons' %} " class="btn text-white m-2"><i class="fas fa-user-edit"></i>Delivery Persons</a>
                     <a href="{% url 'manager:customers' %} " class="btn text-white m-2"><i class="fas fa-user-edit"></i>Customers</a>
-                    <a href="{% url 'manager:profile' %} " class="btn text-white m-2"><i class="fas fa-user"></i> {{ user.username }}</a>
-                    <a href="{% url 'logout' %} " class="btn text-white m-2"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+                    <a href="{% url 'manager:customer-requests' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i>Customer Requests</a>
                       {% elif user.user_type == 1 %}
                       <a href="{% url 'products' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i>Products</a>
                       <a href="{% url 'delivery-list' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i>Delivery List</a>
+                      <a href="{% url 'customer-requests' %}" class="btn text-white m-2"><i class="fas fa-user-shield"></i>Customer Requests</a>
                       {% endif %}
+                      <a href="{% url 'profile' %} " class="btn text-white m-2"><i class="fas fa-user"></i> {{ user.username }}</a>
+                      <a href="{% url 'logout' %} " class="btn text-white m-2"><i class="fas fa-sign-out-alt"></i> Log Out</a>
                     {% else %}
                     <a href="{% url 'login' %} " class="btn text-white m-2"><i class="fas fa-user-tie"></i> Log In</a>
                    

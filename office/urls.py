@@ -1,39 +1,46 @@
 from django.urls import include, path
-from office.views import office, manager
+from office import views
 
 urlpatterns = [
-    path('', office.home, name='home'),
-    path('products/', office.ListProductView.as_view(), name='products'),
-    path('delivery_list/', manager.DeliveryListView.as_view(), name='delivery-list'),
-    path('delivery_complete/<int:id>/', manager.complete_delivery, name='delivery-complete'),
-    
+    path('', views.home, name='home'),
+    path('products/', views.ListProductView.as_view(), name='products'),
+    path('delivery_list/', views.DeliveryListView.as_view(), name='delivery-list'),
+    path('delivery_complete/<int:id>/', views.complete_delivery, name='delivery-complete'),
+    path('payment_gateway/<int:id>', views.PaymentGatewayView.as_view(), name='payment-gateway'),
+    path('payment/<int:id>/', views.payment, name='payment'),
+    path('customer_requests/', views.ListCustomerRequestsView.as_view(), name='customer-requests'),
+    path('customer_request_add/', views.AddCustomerRequestView.as_view(), name='customer-request-add'),
+    path('profile/', views.AddProductView.as_view(), name='profile'),
+
     path('manager/', include(([
-        path('', manager.HomeView.as_view(), name='home'),
+        path('', views.home, name='home'),
         
-        path('product_add/', manager.AddProductView.as_view(), name='product-add'),
-        path('products/', office.ListProductView.as_view(), name='products'),
-        path('product_delete/<int:pk>/', manager.DeleteProductView.as_view(), name='product-delete'),
+        path('product_add/', views.AddProductView.as_view(), name='product-add'),
+        path('products/', views.ListProductView.as_view(), name='products'),
+        path('product_delete/<int:pk>/', views.DeleteProductView.as_view(), name='product-delete'),
 
-        path('delivery_person_add/', manager.AddDeliveryPersonView.as_view(), name='delivery-person-add'),
-        path('delivery_persons/', manager.ListDeliveryPersonView.as_view(), name='delivery-persons'),
-        path('delivery_person_delete/<int:pk>/', manager.DeleteDeliveryPersonView.as_view(), name='delivery-person-delete'),
+        path('delivery_person_add/', views.AddDeliveryPersonView.as_view(), name='delivery-person-add'),
+        path('delivery_persons/', views.ListDeliveryPersonView.as_view(), name='delivery-persons'),
+        path('delivery_person_delete/<int:pk>/', views.DeleteDeliveryPersonView.as_view(), name='delivery-person-delete'),
 
-        path('customer_add/', manager.AddCustomerView.as_view(), name='customer-add'),
-        path('customers/', manager.ListCustomerView.as_view(), name='customers'),
-        path('customer_delete/<int:pk>/', manager.DeleteCustomerView.as_view(), name='customer-delete'),
+        path('customer_add/', views.AddCustomerView.as_view(), name='customer-add'),
+        path('customers/', views.ListCustomerView.as_view(), name='customers'),
+        path('customer_delete/<int:pk>/', views.DeleteCustomerView.as_view(), name='customer-delete'),
         
-        path('subscriptions/<int:pk>/', manager.ListSubscriptionView.as_view(), name='subscriptions'),
-        path('subscriptions/<int:id1>/delete/<int:pk>/', manager.DeleteSubscriptionView.as_view(), name='subscription-delete'),
+        path('subscriptions/<int:pk>/', views.ListSubscriptionView.as_view(), name='subscriptions'),
+        path('subscriptions/<int:id1>/delete/<int:pk>/', views.DeleteSubscriptionView.as_view(), name='subscription-delete'),
         
-        path('delivery_list/', manager.DeliveryListView.as_view(), name='delivery-list'),
-        path('generate_delivery_list/', manager.generate_delivery_list, name='generate-delivery-list'),
-        path('delete_delivery_list/', manager.delete_delivery_list, name='delete-delivery-list'),
+        path('delivery_list/', views.DeliveryListView.as_view(), name='delivery-list'),
+        path('generate_delivery_list/', views.generate_delivery_list, name='generate-delivery-list'),
+        path('delete_delivery_list/', views.delete_delivery_list, name='delete-delivery-list'),
 
-        path('calculate_salary/', manager.calculate_salary, name='calculate-salary'),
-        path('generate_bill/<int:id>/', manager.generate_bill, name='generate-bill'),
-        path('pause/<int:id>/<int:pause>/', manager.pause, name='pause'),
+        path('calculate_salary/', views.calculate_salary, name='calculate-salary'),
+        path('generate_bill/<int:id>/', views.generate_bill, name='generate-bill'),
+        path('pause/<int:id>/<int:pause>/', views.pause, name='pause'),
 
-        path('profile/', manager.AddProductView.as_view(), name='profile'),
+        path('customer_requests/', views.ListCustomerRequestsView.as_view(), name='customer-requests'),
+        path('customer_request_complete/<int:id>/', views.complete_customer_request, name='customer-request-complete'),
+
     ], 'office'), namespace='manager')),
 
 ]

@@ -1,6 +1,6 @@
 from django.contrib.auth import login
 from django.shortcuts import redirect, render, get_object_or_404
-from django.views.generic import CreateView, ListView, UpdateView, DeleteView
+from django.views.generic import CreateView, ListView, DeleteView
 from office.models import (
     User,
     ProductList,
@@ -8,6 +8,7 @@ from office.models import (
     SubscriptionList,
     DeliveryList,
     Bill,
+    CustomerRequest,
 )
 from django.urls import reverse, reverse_lazy
 from office.forms import (
@@ -16,6 +17,7 @@ from office.forms import (
     AddProductForm,
     AddCustomerForm,
     AddSubscriptionForm,
+    AddCustomerRequestForm,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
@@ -23,7 +25,6 @@ class ManagerSignUpView(CreateView):
     model = User
     form_class = ManagerSignUpForm
     template_name = 'registration/register.html'
-    success_url = reverse_lazy('manager:home')
 
     def get_context_data(self, **kwargs):
         kwargs['user_type'] = 'manager'
@@ -32,13 +33,15 @@ class ManagerSignUpView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return super().form_valid(form)
+        return redirect('manager:home')
 
-class HomeView(LoginRequiredMixin, ListView):
-    template_name = 'home.html'
-
-    def get_queryset(self):
-        return 0
+def home(request):
+    if request.user.is_authenticated:
+        if request.user.user_type == 0:
+            return render(request, 'home.html')
+        elif request.user.user_type == 1:
+            return render(request, 'home.html')
+    return redirect('login')
 
 class AddDeliveryPersonView(LoginRequiredMixin, CreateView):
     model = User
@@ -98,6 +101,19 @@ class AddProductView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         return super().form_valid(form)
 
+class ListProductView(ListView):
+    model = ProductList
+    ordering = ('id', )
+    context_object_name = 'objects'
+    template_name = 'items.html'
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Product'
+        kwargs['type'] = 'products'
+        kwargs['add'] = 'manager:product-add'
+        kwargs['delete'] = 'manager:product-delete'
+        return super().get_context_data(**kwargs)
+    
 class DeleteProductView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = ProductList
     template_name = 'manager/item_confirm_delete.html'
@@ -254,13 +270,14 @@ def delete_delivery_list(request):
 # 2. Add the price to deliveries in User table
 # 3. Add the Bill to customer
 # 4. Update customer due_date by 1
+# 5. Update customer amount payable
 def complete_delivery(request, id):
     # Updating deliverylist
     delivery = DeliveryList.objects.filter(id=id).first()
     delivery.completed = True
     delivery.save()
 
-    # Adding the price
+    # Adding the price to deliveries
     dp = User.objects.filter(id=delivery.deliveryperson.id).first()
     subscriptions = SubscriptionList.objects.filter(customer=delivery.customer)
     price = 0
@@ -292,9 +309,10 @@ def complete_delivery(request, id):
             temp.quantity = 1
             temp.save()
     
-    # Update customer due date
+    # Update customer due date and amount payable
     customer = delivery.customer
     customer.due_days += 1
+    customer.amount_payable += price
     customer.save()
 
     return redirect('delivery-list')
@@ -310,7 +328,7 @@ def calculate_salary(request):
 # GENERATE PDF HERE
 def generate_bill(request, id):
     bills = Bill.objects.filter(customer=id)
-    customer = Customer.objects.filter(id=id)
+    customer = Customer.objects.filter(id=id).first()
     if customer.due_days <= 30:
         print("BILLS: ",end="")
     else:
@@ -319,7 +337,7 @@ def generate_bill(request, id):
     if bills:
         for bill in bills:
             amount += bill.product.price * bill.quantity
-    print(amount)
+    print(amount, customer.amount_payable)
     return redirect('manager:customers')
 
 def pause(request, id, pause):
@@ -330,3 +348,60 @@ def pause(request, id, pause):
         customer.pause = 0
     customer.save()
     return redirect('manager:customers')
+
+class PaymentGatewayView(LoginRequiredMixin, ListView):
+    model = Customer
+    template_name = 'payment.html'
+    context_object_name = 'object'
+    success_url = reverse_lazy('payment-gateway')
+
+    def get_queryset(self):
+        return self.model.objects.filter(id=self.kwargs['id'])
+    
+def payment(request, id):
+    customer = Customer.objects.filter(id=id).first()
+    customer.amount_payable = 0
+    customer.due_days = 0
+    customer.save()
+
+    Bill.objects.filter(customer=customer).delete()
+
+    return redirect('delivery-list')
+
+class ListCustomerRequestsView(LoginRequiredMixin, ListView):
+    model = CustomerRequest
+    template_name = 'customer_request.html'
+    context_object_name = 'objects'
+    
+    def get_success_url(self):
+        if self.request.user.user_type == 0:
+            return reverse_lazy('manager:customer-requests')
+        return reverse_lazy('customer-requests')
+    
+    def get_queryset(self):
+        if self.request.user.user_type == 0:
+            return self.model.objects.all()
+        return self.model.objects.filter(deliveryperson = self.request.user)
+    
+class AddCustomerRequestView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = CustomerRequest
+    template_name = 'manager/item_add.html'
+    form_class = AddCustomerRequestForm
+    success_url = reverse_lazy('customer-requests')
+
+    def get_context_data(self, **kwargs):
+        kwargs['item'] = 'Request'
+        return super().get_context_data(**kwargs)
+    
+    def form_valid(self, form):
+        form.instance.deliveryperson = self.request.user
+        return super().form_valid(form)
+
+    def test_func(self):
+        if self.request.user.user_type == 1:
+            return True
+        return False
+
+def complete_customer_request(request, id):
+    CustomerRequest.objects.filter(id=id).delete()
+    return redirect('manager:customer-requests')

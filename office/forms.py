@@ -5,7 +5,8 @@ from office.models import (
     User,
     ProductList,
     Customer,
-    SubscriptionList
+    SubscriptionList,
+    CustomerRequest,
 )
 
 class ManagerSignUpForm(UserCreationForm):
@@ -65,3 +66,12 @@ class AddSubscriptionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AddSubscriptionForm, self).__init__(*args, **kwargs)
         self.fields["product"].empty_label = None
+
+class AddCustomerRequestForm(forms.ModelForm):
+    class Meta:
+        model = CustomerRequest
+        fields = ("customer", "request")
+    
+    def __init__(self, *args, **kwargs):
+        super(AddCustomerRequestForm, self).__init__(*args, **kwargs)
+        self.fields["customer"].empty_label = None
