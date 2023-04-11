@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if user.user_type == 0 %}
+<div><a class="btn btn-outline-secondary" href="{% url 'manager:generate-delivery-list' %}">Generate</a></div>
+{% endif %}
+
+    {% for obj in object %}
+        <div>
+            {{ obj.deliveryperson }} {{ obj.customer }}
+            {% if obj.completed == 1 %}
+                Done
+            {% elif user.user_type == 1 %}
+                <a class="btn btn-outline-secondary" href="{% url 'delivery-complete' obj.id %}">Mark as done</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+{% if user.user_type == 0 %}
+<div><a class="btn btn-outline-secondary" href="{% url 'manager:delete-delivery-list' %}">Delete</a></div>
+{% endif %}  
+
+{% endblock content %}

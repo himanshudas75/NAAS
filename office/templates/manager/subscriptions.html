@@ -11,9 +11,9 @@
       </form>
     {% for obj in objects %}
         <div>
-            {{ obj.customer_id.username }} {{ obj.product_id.code }}
+            {{ obj.customer.username }} {{ obj.product.code }}
             {% if user.user_type == 0 %}
-                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url delete obj.customer_id.id obj.id %}">Delete</a>
+                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url delete obj.customer.id obj.id %}">Delete</a>
             {% endif %}
         </div>
     {% endfor %}

@@ -28,6 +28,8 @@ class AddDeliveryPersonForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.user_type = 1
+        user.deliveries = 0
+        user.salary = 0
         if commit:
             user.save()
         return user
@@ -58,8 +60,8 @@ class AddCustomerForm(forms.ModelForm):
 class AddSubscriptionForm(forms.ModelForm):
     class Meta:
         model = SubscriptionList
-        fields = ("product_id",)
+        fields = ("product",)
 
     def __init__(self, *args, **kwargs):
         super(AddSubscriptionForm, self).__init__(*args, **kwargs)
-        self.fields["product_id"].empty_label = None
+        self.fields["product"].empty_label = None
