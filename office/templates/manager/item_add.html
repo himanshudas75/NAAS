@@ -5,9 +5,7 @@
 {% block content %}
   <div class="row">
     <div class="col-md-8 col-sm-10 col-12">
-      <br>
-      <h2>Enter {{item}} Details:</h2>
-      <br>
+      <h4 class="heading">Enter {{item}} Details:</h4>
       <form method="post" novalidate>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">

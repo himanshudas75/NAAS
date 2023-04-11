@@ -1,20 +1,43 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    {% if user.user_type == 1 %}
-        <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'customer-request-add' %}">Add New Request</a>
-    {% endif %}
-    {% for obj in objects %}
-        <div>
-            {% if user.user_type == 0 %}
-                {{obj.deliveryperson}}
-            {% endif %}
+    <div class="top-button">
+        {% if user.user_type == 1 %}
+            <a class="btn btn-primary" href="{% url 'customer-request-add' %}">Add New Request</a>
+        {% endif %}
+    </div>
+    <div id="wrapper">
+    <table id="keywords" cellspacing="0" cellpadding="0">
+        <thead>
+            <tr>
+                {% if user.user_type == 0 %}
+                    <th><h3>Delivery Person</h3></th>
+                {% endif %}
+                <th><h3>Customer</h3></th>
+                <th><h3>Request</h3></th>
+                {% if user.user_type == 0 %}
+                    <th><h3>Action</h3></th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for obj in objects %}
+                <tr>
+                    {% if user.user_type == 0 %}
+                        <td>{{obj.deliveryperson}}</td>
+                    {% endif %}
 
-            {{obj.customer}} {{obj.request}}
-
-            {% if user.user_type == 0 %}
-                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:customer-request-complete' obj.id %}">Mark as done</a>
-            {% endif %}
-        </div>
-    {% endfor %}
+                    <td>{{obj.customer}}</td>
+                    <td>{{obj.request}}</td>
+                    
+                    {% if user.user_type == 0 %}
+                        <td>
+                            <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url 'manager:customer-request-complete' obj.id %}">Mark as done</a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock content %}

@@ -10,7 +10,6 @@ urlpatterns = [
     path('payment/<int:id>/', views.payment, name='payment'),
     path('customer_requests/', views.ListCustomerRequestsView.as_view(), name='customer-requests'),
     path('customer_request_add/', views.AddCustomerRequestView.as_view(), name='customer-request-add'),
-    path('profile/', views.AddProductView.as_view(), name='profile'),
 
     path('manager/', include(([
         path('', views.home, name='home'),

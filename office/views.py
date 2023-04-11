@@ -21,6 +21,14 @@ from office.forms import (
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
+def home(request):
+    if request.user.is_authenticated:
+        if request.user.user_type == 0:
+            return render(request, 'home.html')
+        elif request.user.user_type == 1:
+            return render(request, 'home.html')
+    return redirect('login')
+
 class ManagerSignUpView(CreateView):
     model = User
     form_class = ManagerSignUpForm
@@ -34,14 +42,6 @@ class ManagerSignUpView(CreateView):
         user = form.save()
         login(self.request, user)
         return redirect('manager:home')
-
-def home(request):
-    if request.user.is_authenticated:
-        if request.user.user_type == 0:
-            return render(request, 'home.html')
-        elif request.user.user_type == 1:
-            return render(request, 'home.html')
-    return redirect('login')
 
 class AddDeliveryPersonView(LoginRequiredMixin, CreateView):
     model = User

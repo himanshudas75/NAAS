@@ -2,25 +2,48 @@
 
 {% block content %}
 {% if user.user_type == 0 %}
-<div><a class="btn btn-outline-secondary" href="{% url 'manager:generate-delivery-list' %}">Generate</a></div>
+<div class="top-button">
+<a class="btn btn-primary" href="{% url 'manager:generate-delivery-list' %}">Generate</a></div>
 {% endif %}
 
+<div id="wrapper">
+    <table id="keywords" cellspacing="0" cellpadding="0">
+        <thead>
+            <tr>
+                    <th><h3>Delivery Person Username</h3></th>
+                <th><h3>Customer Username</h3></th>
+                <th><h3>Status</h3></th>
+                {% if user.user_type == 1 %}
+                <th><h3>Action</h3></th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
     {% for obj in object %}
-        <div>
-            {{ obj.deliveryperson }} {{ obj.customer }}
+        <tr>
+            <td>{{ obj.deliveryperson }}</td>
+            <td>{{ obj.customer }}</td>
+            <td>
             {% if obj.completed == 1 %}
                 Done
             {% elif user.user_type == 1 %}
-                <a class="btn btn-outline-secondary" href="{% url 'delivery-complete' obj.id %}">Mark as done</a>
+                <a class="btn btn-success btn-sm" href="{% url 'delivery-complete' obj.id %}">Mark as done</a>
+            {% else %}
+                Pending
             {% endif %}
+            </td>
             {% if user.user_type == 1 %}
-                <a class="btn btn-outline-secondary" href="{% url 'payment-gateway' obj.customer.id %}">Payment</a>
+                <td><a class="btn btn-success btn-sm" href="{% url 'payment-gateway' obj.customer.id %}">Payment</a></td>
             {% endif %}
-        </div>
+        </tr>
     {% endfor %}
+</tbody>
+</table>
+</div>
 
 {% if user.user_type == 0 %}
-<div><a class="btn btn-outline-secondary" href="{% url 'manager:delete-delivery-list' %}">Delete</a></div>
+<div class="top-button">
+<a class="btn btn-danger" href="{% url 'manager:delete-delivery-list' %}">Delete</a></div>
 {% endif %}  
 
 {% endblock content %}

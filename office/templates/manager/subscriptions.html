@@ -2,19 +2,40 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-    <h2>Add Subscription</h2>
+    <h4 class="heading">Add Subscription</h4>
     <form method="post" novalidate>
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
         {{ form|crispy }}
-        <button type="submit" class="btn btn-success">Add</button>
+        <div class="top-button">
+        <button type="submit" class="btn btn-primary">Add Subscription</button>
+    </div>
       </form>
+      <div id="wrapper">
+        <table id="keywords" cellspacing="0" cellpadding="0">
+            <thead>
+                <tr>
+                        <th><h3>Customer Username</h3></th>
+                    <th><h3>Product Name</h3></th>
+                    <th><h3>Product Code</h3></th>
+                    {% if user.user_type == 0 %}
+                        <th><h3>Action</h3></th>
+                        {% endif %}
+                </tr>
+            </thead>
+            <tbody>
     {% for obj in objects %}
-        <div>
-            {{ obj.customer.username }} {{ obj.product.code }}
+        <tr>
+            <td>{{ obj.customer }}</td>
+            <td>{{ obj.product.name }}</td>
+            <td>{{ obj.product.code }}</td>
+             
             {% if user.user_type == 0 %}
-                <a class="btn btn-danger btn-sm mt-1 mb-1" href="{% url delete obj.customer.id obj.id %}">Delete</a>
+                <td><a class="btn btn-danger btn-sm" href="{% url delete obj.customer.id obj.id %}">Delete</a></td>
             {% endif %}
-        </div>
+        </tr>
     {% endfor %}
+</tbody>
+    </table>
+    </div>
 {% endblock content %}

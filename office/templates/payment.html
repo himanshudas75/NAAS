@@ -4,14 +4,21 @@
 
     {% for obj in object %}
         <div>
-            <h4>Payment for {{ obj }}</h4>
-            <h4>Amount Payable: Rs {{ obj.amount_payable }}/-</h4>
-
+            <h4 class="heading">Payment for {{ obj }}</h4>
+            <div style="margin-bottom: 2%;">
+            <h5>Amount Payable: Rs {{ obj.amount_payable }}/-<h5>
+            </div>
+            <div class>
             <form action="payment">
-                <label for="card">Enter card details:</label><br>
+                <p style="margin-top:1%;">Enter card number:</p>
                 <input type="text" id="card" name="card-details"><br>
-                <a class="btn btn-outline-secondary" href="{% url 'payment' obj.id %}">Pay</a>
+                <p style="margin-top:1%;">CVV:</p>
+                <input type="text" id="card" name="card-details"><br>
+                <div style="margin: 2%; margin-left: 0%;">
+                <a class="btn btn-success" href="{% url 'payment' obj.id %}">Make Payment</a>
+            </div>
             </form>
+        </div>
             
         </div>
     {% endfor %}
