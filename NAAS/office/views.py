@@ -250,6 +250,8 @@ class DeliveryListView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         kwargs['title'] = 'Delivery List'
+        if self.request.GET.get("message"):
+            kwargs['messages'] = [self.request.GET.get("message")]
         return super().get_context_data(**kwargs)
     
     def get_queryset(self):
@@ -350,7 +352,9 @@ def complete_delivery(request, id):
     # Delete customer if due_days greater than 60
     if customer.due_days > 60:
         customer.delete()
-        return redirect('delivery-list')
+        response = redirect('delivery-list')
+        response['Location'] +=f'?message=The customer {customer.username} has been removed for excessive due date'
+        return response
     
     return redirect('delivery-list')
 
