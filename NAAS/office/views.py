@@ -439,7 +439,7 @@ class ListCustomerRequestsView(LoginRequiredMixin, ListView):
     
 class AddCustomerRequestView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = CustomerRequest
-    template_name = 'manager/item_add.html'
+    template_name = 'item_add.html'
     form_class = AddCustomerRequestForm
     success_url = reverse_lazy('customer-requests')
 

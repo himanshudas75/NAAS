@@ -2,8 +2,8 @@ version: '3.9'
 services:
   db:
     image: mysql
-    ports:
-      - 3306:3306
+    # ports:
+    #   - 3306:3306
     environment:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_ROOT_PASSWORD: "rootpassword"
@@ -20,7 +20,6 @@ services:
       dockerfile: Dockerfile
       target: naas
     volumes:
-    #  - ./NAAS:/opt/NAAS
      - shared-data:/opt/NAAS
     depends_on:
       db:
@@ -33,7 +32,6 @@ services:
       dockerfile: Dockerfile
       target: nginx
     volumes:
-      # - ./NAAS:/opt/NAAS
       - shared-data:/opt/NAAS
     ports:
       - 8500:80
