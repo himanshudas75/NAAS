@@ -43,6 +43,9 @@
                 <th>
                     <h3>Address</h3>
                 </th>
+                <th>
+                    <h3>Days Due</h3>
+                </th>
                 <th><h3>Action</h3></th>
                 <th><h3>Action</h3></th>
                 <th><h3>Action</h3></th>
@@ -71,6 +74,7 @@
                 <td>{{obj.name}}</td>
                 <td>{{obj.username}}</td>
                 <td>{{obj.address}}</td>
+                <td>{{obj.due_days}}</td>
                  
                 <td><a class="btn btn-success btn-sm" href="{% url 'manager:subscriptions' obj.id %}">View Subscriptions</a></td>
                 <td><a class="btn btn-success btn-sm" href="{% url 'manager:generate-bill' obj.id %}">Generate Bill/Reminder</a></td>

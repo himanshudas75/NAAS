@@ -10,7 +10,7 @@ from office.models import (
     Bill,
     CustomerRequest,
 )
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from office.forms import (
     ManagerSignUpForm,
     AddDeliveryPersonForm,
@@ -193,12 +193,21 @@ class ListSubscriptionView(LoginRequiredMixin, CreateView, ListView):
     form_class = AddSubscriptionForm
     template_name = 'subscriptions.html'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'customer_id': self.kwargs['pk']})
+        return kwargs
+    
     def get_success_url(self):         
         return reverse_lazy('manager:subscriptions', kwargs = {'pk': self.object.customer.id})
     
     def form_valid(self, form):
         form.instance.customer = Customer.objects.filter(id=self.kwargs['pk']).first()
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        self.object_list = self.get_queryset()
+        return self.render_to_response(self.get_context_data(form=form))
     
     def get_context_data(self, **kwargs):
         kwargs['title'] = 'Subscriptions'
@@ -338,6 +347,11 @@ def complete_delivery(request, id):
     customer.amount_payable += price
     customer.save()
 
+    # Delete customer if due_days greater than 60
+    if customer.due_days > 60:
+        customer.delete()
+        return redirect('delivery-list')
+    
     return redirect('delivery-list')
 
 def calculate_salary(request):

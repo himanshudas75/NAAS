@@ -20,6 +20,7 @@ services:
       dockerfile: Dockerfile
       target: naas
     volumes:
+    #  - ./NAAS:/opt/NAAS
      - shared-data:/opt/NAAS
     depends_on:
       db:
@@ -32,6 +33,7 @@ services:
       dockerfile: Dockerfile
       target: nginx
     volumes:
+      # - ./NAAS:/opt/NAAS
       - shared-data:/opt/NAAS
     ports:
       - 8500:80

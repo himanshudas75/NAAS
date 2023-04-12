@@ -1,0 +1,1 @@
+docker container prune -f; docker image rm naas-naas naash-nginx; docker volume prune;

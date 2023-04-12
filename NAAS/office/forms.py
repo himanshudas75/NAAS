@@ -1,6 +1,5 @@
 from django.contrib.auth.forms import UserCreationForm
 from django import forms
-from django.contrib.admin.widgets import AdminDateWidget
 from office.models import (
     User,
     ProductList,
@@ -8,6 +7,7 @@ from office.models import (
     SubscriptionList,
     CustomerRequest,
 )
+from django.core.exceptions import ValidationError
 
 class ManagerSignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -57,13 +57,22 @@ class AddCustomerForm(forms.ModelForm):
         self.fields['name'].widget.attrs['placeholder'] = 'John Doe'
         self.fields['username'].widget.attrs['placeholder'] = 'johndoe121'
         self.fields['address'].widget.attrs['placeholder'] = '221B Baker Street'
-    
+
 class AddSubscriptionForm(forms.ModelForm):
     class Meta:
         model = SubscriptionList
         fields = ("product",)
+        customer_id = None
+    
+    def clean_product(self):
+        input_product = self.cleaned_data.get("product")
+        already_exist = SubscriptionList.objects.filter(customer=self.customer_id, product=input_product)
+        if already_exist:
+            raise ValidationError('The customer has already subscribed for this product')
+        return input_product
 
     def __init__(self, *args, **kwargs):
+        self.customer_id = kwargs.pop('customer_id', None)
         super(AddSubscriptionForm, self).__init__(*args, **kwargs)
         self.fields["product"].empty_label = None
 
