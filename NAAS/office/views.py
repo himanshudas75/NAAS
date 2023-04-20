@@ -361,7 +361,7 @@ def complete_delivery(request, id):
 def calculate_salary(request):
     delivery = User.objects.filter(user_type=1)
     for dp in delivery:
-        dp.salary = dp.deliveries*2.5
+        dp.salary = dp.deliveries*2.5*0.01
         dp.deliveries = 0
         dp.save()
     return redirect('manager:delivery-persons')
